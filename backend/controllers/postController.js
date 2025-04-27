@@ -128,9 +128,39 @@ const reportPost = async (req, res) => {
   }
 };
 
+const getUserSavedPosts = async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ message: "Missing userId" });
+    }
+
+    const user = await User.findById(userId).populate("savedPosts");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const savedPosts = user.savedPosts.map((post) => ({
+      ...post.toObject(),
+      savedBy: user.username,
+    }));
+
+    res.status(200).json({ savedPosts });
+  } catch (error) {
+    console.error("Error fetching user's saved posts:", error);
+    res.status(500).json({ message: "Failed to get saved posts", error });
+  }
+};
+
+
 module.exports = {
   getRedditPosts,
   getTwitterPosts,
   savePost,
   reportPost,
+  getUserSavedPosts,
 };
+
+

@@ -68,10 +68,38 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const updateCredits = async (req, res) => {
+  try {
+    const { credits } = req.body;
+    console.log('credits: ', credits);
+    const cr = +credits
+    if (typeof cr !== "number" || credits < 0) {
+      return res.status(400).json({ message: "Invalid credits value" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { credits : cr },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "Credits updated", user });
+  } catch (err) {
+    console.error("Failed to update credits:", err);
+    res.status(500).json({ message: "Failed to update credits", error: err });
+  }
+};
+
+
 module.exports = {
   getAnalytics,
   getActivities,
   getUsers,
   updateUser,
   deleteUser,
+  updateCredits,
 };

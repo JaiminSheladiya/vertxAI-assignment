@@ -1,8 +1,8 @@
-# 🌟 VertxAI Application
+# 🌟 Creator Dashboard
 
 ## 📋 Overview
 
-VertxAI is a social media aggregator application that collects, displays, and allows interaction with posts from platforms like Reddit and Twitter. Users can save posts, report inappropriate content, and track their activities. The application also provides a dashboard for admins to manage users and analytics.
+This is a social media aggregator application that collects, displays, and allows interaction with posts from platforms like Reddit and Twitter. Users can save posts, report inappropriate content, and track their activities. The application also provides a dashboard for admins to manage users and analytics.
 
 ## ✨ Features
 
