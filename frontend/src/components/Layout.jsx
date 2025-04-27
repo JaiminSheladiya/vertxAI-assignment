@@ -20,7 +20,7 @@ const { Title } = Typography;
 
 const AppLayout = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Hook to get current location
+  const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const dispatch = useDispatch();
 

@@ -1,4 +1,3 @@
-// utils/twitter.js
 const axios = require("axios");
 
 const fetchTweets = async () => {
