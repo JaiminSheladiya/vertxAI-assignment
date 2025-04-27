@@ -49,7 +49,7 @@ const Feed = () => {
   };
 
   useEffect(() => {
-    fetchPosts(currentSource, page);
+    fetchPosts(currentSource, page, true);
   }, [currentSource, page, limit]);
 
   const handleTabChange = (key) => {

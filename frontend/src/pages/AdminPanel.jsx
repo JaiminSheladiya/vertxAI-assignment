@@ -7,12 +7,17 @@ import {
   Tag,
   Space,
   Typography,
+  Input,
+  Popover,
 } from "antd";
 import api from "../utils/api";
+
 const { Title } = Typography;
 
 const AdminPanel = () => {
   const [users, setUsers] = useState([]);
+  const [editableCreditUser, setEditableCreditUser] = useState(null);
+  const [creditInput, setCreditInput] = useState("");
 
   const fetchUsers = async () => {
     try {
@@ -43,6 +48,20 @@ const AdminPanel = () => {
     }
   };
 
+  const updateCredits = async (userId, newCredits) => {
+    try {
+      // Dummy PATCH request
+      await api.patch(`/admin/users/${userId}/credits`, {
+        credits: newCredits,
+      });
+      message.success("Credits updated");
+      setEditableCreditUser(null);
+      fetchUsers();
+    } catch {
+      message.error("Failed to update credits");
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -70,6 +89,43 @@ const AdminPanel = () => {
       title: "Credits",
       dataIndex: "credits",
       key: "credits",
+      render: (credits, user) => (
+        <Popover
+          content={
+            <div style={{ display: "flex", gap: "8px" }}>
+              <Input
+                size="small"
+                type="number"
+                value={creditInput}
+                onChange={(e) => setCreditInput(e.target.value)}
+                placeholder="New credits"
+              />
+              <Button
+                type="primary"
+                size="small"
+                onClick={() => updateCredits(user._id, creditInput)}
+              >
+                Save
+              </Button>
+            </div>
+          }
+          title="Edit Credits"
+          trigger="click"
+          open={editableCreditUser === user._id}
+          onOpenChange={(open) => {
+            if (open) {
+              setEditableCreditUser(user._id);
+              setCreditInput(credits);
+            } else {
+              setEditableCreditUser(null);
+            }
+          }}
+        >
+          <Tag color="gold" style={{ cursor: "pointer" }}>
+            {credits}
+          </Tag>
+        </Popover>
+      ),
     },
     {
       title: "Saved Posts",
@@ -125,8 +181,16 @@ const AdminPanel = () => {
   ];
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "0 20px" }}>
       <Title level={3}>Admin Panel - User Management</Title>
+      <Space direction="vertical" style={{ marginBottom: 16 }}>
+        <Tag
+          color="green"
+          style={{ fontSize: "14px", padding: "0.5rem 1.25rem" }}
+        >
+          💡 Click on <strong>Credits</strong> tag to edit a user's credits
+        </Tag>
+      </Space>
       <Table columns={columns} dataSource={users} rowKey="_id" />
     </div>
   );

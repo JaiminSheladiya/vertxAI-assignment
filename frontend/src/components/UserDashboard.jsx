@@ -4,6 +4,7 @@ import {
   SaveOutlined,
   FlagOutlined,
   ClockCircleOutlined,
+  LinkOutlined, // For clickable links
 } from "@ant-design/icons";
 import api from "../utils/api";
 
@@ -16,6 +17,8 @@ const typeMap = {
 
 const UserDashboard = ({ user }) => {
   const [activities, setActivities] = useState([]);
+  const [savedPosts, setSavedPosts] = useState([]);
+  console.log("savedPosts: ", savedPosts);
 
   useEffect(() => {
     const fetchActivity = async () => {
@@ -27,7 +30,21 @@ const UserDashboard = ({ user }) => {
       }
     };
 
-    if (user?._id) fetchActivity();
+    const fetchSavedPosts = async () => {
+      try {
+        const res = await api.get(`/posts/saved-posts`, {
+          params: { userId: user._id },
+        });
+        setSavedPosts(res.data.savedPosts);
+      } catch (err) {
+        console.error("Failed to load saved posts", err);
+      }
+    };
+
+    if (user?._id) {
+      fetchActivity();
+      fetchSavedPosts();
+    }
   }, [user]);
 
   return (
@@ -68,54 +85,121 @@ const UserDashboard = ({ user }) => {
         </Col>
       </Row>
 
-      <Card style={{ marginTop: "30px" }}>
-        <Title level={4}>Recent Activity</Title>
-        {activities.length === 0 ? (
-          <Text type="secondary">No activity yet.</Text>
-        ) : (
-          <List
-            itemLayout="horizontal"
-            dataSource={activities}
-            renderItem={(activity) => {
-              const info = typeMap[activity.type] || {
-                label: activity.type,
-                color: "blue",
-              };
+      {/* Activity + Saved Posts Section */}
+      <Row gutter={[16, 16]} style={{ marginTop: "30px" }}>
+        {/* Feed & User Activity */}
+        <Col span={8}>
+          <Card>
+            <Title level={4}>Feed & User Activity</Title>
+            {activities.length === 0 ? (
+              <Typography.Text type="secondary">
+                No activity recorded yet.
+              </Typography.Text>
+            ) : (
+              <List
+                itemLayout="horizontal"
+                dataSource={activities}
+                renderItem={(activity) => (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={
+                        <>
+                          <Tag color="blue">{activity.type}</Tag>{" "}
+                          {activity.userId?.username}
+                          <div style={{ fontWeight: "400", color: "grey" }}>
+                            {activity?.details || ""}
+                          </div>
+                        </>
+                      }
+                      description={new Date(
+                        activity.timestamp
+                      ).toLocaleString()}
+                    />
+                  </List.Item>
+                )}
+              />
+            )}
+          </Card>
+        </Col>
 
-              return (
-                <List.Item>
-                  <List.Item.Meta
-                    avatar={
-                      <Tag color={info.color} icon={info.icon}>
-                        {activity.type}
-                      </Tag>
-                    }
-                    title={
-                      <Text>
-                        {info.label}
-                        {activity.postId?.title && (
-                          <>
-                            {" "}
-                            on post "<strong>{activity.postId.title}</strong>"
-                          </>
-                        )}
-                      </Text>
-                    }
-                    description={
-                      <Space>
-                        <ClockCircleOutlined />
-                        <Text type="secondary">
-                          {new Date(activity.timestamp).toLocaleString()}
-                        </Text>
-                      </Space>
-                    }
-                  />
-                </List.Item>
-              );
-            }}
-          />
-        )}
-      </Card>
+        {/* Saved Posts Placeholder */}
+        <Col span={16}>
+          <Card>
+            <Title level={4}>Saved Posts</Title>
+
+            {savedPosts.length === 0 ? (
+              <Typography.Text type="secondary">
+                No saved posts available.
+              </Typography.Text>
+            ) : (
+              <List
+                itemLayout="vertical"
+                dataSource={savedPosts}
+                renderItem={(post) => (
+                  <List.Item
+                    key={post._id}
+                    style={{
+                      padding: "12px 0",
+                      borderBottom: "1px solid #f0f0f0",
+                    }}
+                  >
+                    <List.Item.Meta
+                      title={
+                        post.source === "reddit" ? (
+                          <a
+                            href={post.data?.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <LinkOutlined style={{ marginRight: 8 }} />{" "}
+                            {/* Add Link icon */}
+                            {post.data?.title}
+                          </a>
+                        ) : post.source === "twitter" ? (
+                          <a
+                            href={`https://twitter.com/i/web/status/${post.data?.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <LinkOutlined style={{ marginRight: 8 }} />{" "}
+                            {/* Add Link icon */}
+                            Tweet
+                          </a>
+                        ) : (
+                          <span>Unknown Source</span>
+                        )
+                      }
+                      description={
+                        <>
+                          {post.source === "reddit" && (
+                            <Tag color="purple">{post.data?.subreddit}</Tag>
+                          )}
+                          {post.source === "twitter" && (
+                            <Tag color="blue">Twitter</Tag>
+                          )}
+                          <Tag color="green">Saved by: {post.savedBy}</Tag>
+                          <br />
+                          <Typography.Text type="secondary">
+                            {new Date(post.createdAt).toLocaleString()}
+                          </Typography.Text>
+                        </>
+                      }
+                    />
+                    <div style={{ marginTop: 8 }}>
+                      <Typography.Paragraph ellipsis={{ rows: 2 }}>
+                        {post.source === "reddit" && post.data?.selftext}
+                        {post.source === "twitter" && post.data?.text}
+                      </Typography.Paragraph>
+                    </div>
+                  </List.Item>
+                )}
+              />
+            )}
+          </Card>
+        </Col>
+      </Row>
     </>
   );
 };
