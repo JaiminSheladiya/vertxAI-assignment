@@ -16,6 +16,12 @@ This is a social media aggregator application that collects, displays, and allow
 
 ---
 
+## 🚀 Live Preview
+
+[🔗](https://vertx-assignment.web.app/)
+
+---
+
 ## 📑 Table of Contents
 
 1. [Tech Stack](#tech-stack)
