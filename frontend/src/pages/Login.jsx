@@ -24,7 +24,6 @@ const { Title, Text } = Typography;
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
-  console.log("isLogin: ", isLogin);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -47,7 +46,6 @@ const AuthPage = () => {
     try {
       if (isLogin) {
         const res = await api.post("auth/login", values);
-        console.log("res: ", res.data.token);
         dispatch(loginAction(res.data.token));
         dispatch(fetchUserInfo());
         openNotification("success", "Login Successful", "Welcome back!");
@@ -113,7 +111,9 @@ const AuthPage = () => {
           )}
           <Form.Item
             name="email"
-            rules={[{ required: true, message: "Enter your email" }]}
+            rules={[
+              { type: "email", required: true, message: "Enter your email" },
+            ]}
           >
             <Input prefix={<MailOutlined />} placeholder="Email" size="large" />
           </Form.Item>

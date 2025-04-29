@@ -6,6 +6,7 @@ import PrivateRoute from "./PrivateRoute";
 import Home from "../pages/Home";
 import AdminPanel from "../pages/AdminPanel";
 import FeedPage from "../pages/FeedPage";
+import Feed from "../pages/FeedPage";
 
 const AppRoutes = () => (
   <Routes>
@@ -15,7 +16,7 @@ const AppRoutes = () => (
     {/* Protected Routes */}
     <Route element={<PrivateRoute />}>
       <Route element={<AppLayout />}>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Navigate to="/feed" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/feed" element={<FeedPage />} />
